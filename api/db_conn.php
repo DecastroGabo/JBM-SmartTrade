@@ -25,18 +25,32 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// 4. Database Connection
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "jbm_trading";
+// 4. Database Connection (Cloud Config)
+$db_url = getenv("DATABASE_URL");
 
-$conn = new mysqli($servername, $username, $password, $dbname);
+if ($db_url) {
+    // Parse the Aiven URI
+    $url = parse_url($db_url);
+    
+    $servername = $url["host"];
+    $username   = $url["user"];
+    $password   = $url["pass"];
+    $dbname     = ltrim($url["path"], '/');
+    $port       = $url["port"];
+
+    // Connect using SSL (Required by Aiven)
+    $conn = mysqli_init();
+    $conn->ssl_set(NULL, NULL, NULL, NULL, NULL); 
+    $conn->real_connect($servername, $username, $password, $dbname, $port, NULL, MYSQLI_CLIENT_SSL);
+} else {
+    // Fallback for local testing
+    $conn = new mysqli("localhost", "root", "", "jbm_trading");
+}
 
 if ($conn->connect_error) {
     echo json_encode([
-        'success' => false, 
-        'message' => 'Database connection failed: ' . $conn->connect_error
+        "success" => false, 
+        "message" => "Database connection failed: " . $conn->connect_error
     ]);
     exit;
 }
