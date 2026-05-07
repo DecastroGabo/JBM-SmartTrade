@@ -33,22 +33,32 @@ try {
     } else {
         // Case B: Fetch ALL Products
         // FIX: Changed p.id to p.Prod_ID and added pi.pi_imagepath
-        $sql = "SELECT p.*, pp.PP_ProdPrice as price, c.Cat_Name as category, pi.pi_imagepath 
-                FROM products p
-                LEFT JOIN productprice pp ON p.Prod_ID = pp.Prod_ID
-                LEFT JOIN productcategory pc ON p.Prod_ID = pc.Prod_ID
-                LEFT JOIN category c ON pc.Cat_ID = c.Cat_ID
-                LEFT JOIN product_image pi ON p.Prod_ID = pi.Prod_ID
-                WHERE (pp.PP_ValidTo IS NULL OR pp.PP_ValidTo > NOW())";
+        // Temporary fix to show everything regardless of price expiry
+$sql = "SELECT 
+            p.Prod_ID as id, 
+            p.Prod_Name as name, 
+            p.Prod_Description as description,
+            pp.PP_ProdPrice as price, 
+            c.Cat_Name as category, 
+            pi.pi_imagepath as image,
+            p.Prod_Status as inStock -- Adjust this to match your stock column
+        FROM products p
+        LEFT JOIN productprice pp ON p.Prod_ID = pp.Prod_ID
+        LEFT JOIN productcategory pc ON p.Prod_ID = pc.Prod_ID
+        LEFT JOIN category c ON pc.Cat_ID = c.Cat_ID
+        LEFT JOIN product_image pi ON p.Prod_ID = pi.Prod_ID
+        WHERE (pp.PP_ValidTo IS NULL OR pp.PP_ValidTo > NOW())";
 
         $result = $conn->query($sql);
         
         $products = [];
         if ($result) {
             while ($row = $result->fetch_assoc()) {
-                $row['price'] = (float)$row['price'];
-                $products[] = $row;
-            }
+    $row['price'] = (float)$row['price'];
+    // Example: if status is 'Available', set inStock to true
+    $row['inStock'] = ($row['Prod_Status'] === 'Available'); 
+    $products[] = $row;
+}
         }
         
         echo json_encode($products);
