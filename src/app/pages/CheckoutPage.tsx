@@ -77,7 +77,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     };
 
     try {
-      const response = await fetch('http://localhost/JBMTRADING/api/place-order.php', {
+      const response = await fetch('/api/place-order.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData),

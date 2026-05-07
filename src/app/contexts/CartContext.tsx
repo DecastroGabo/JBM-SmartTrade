@@ -36,7 +36,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
     setIsLoading(true);
     try {
-      const response = await fetch(`http://localhost/JBMTRADING/api/get-cart.php`, {
+      const response = await fetch(`/api/get-cart.php`, {
         credentials: 'include' 
       });
       const data = await response.json();
@@ -69,7 +69,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return;
     }
     try {
-      const response = await fetch('http://localhost/JBMTRADING/api/add-to-cart.php', {
+      const response = await fetch('/api/add-to-cart.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include', 
@@ -91,7 +91,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const removeFromCart = async (id: number) => {
     if (!user) return;
     try {
-      const response = await fetch('http://localhost/JBMTRADING/api/remove-from-cart.php', {
+      const response = await fetch('/api/remove-from-cart.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include', 
@@ -115,7 +115,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }
   
   try {
-    const response = await fetch('http://localhost/JBMTRADING/api/update-cart-quantity.php', {
+    const response = await fetch('/api/update-cart-quantity.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include', // Ensures the session cookie is sent

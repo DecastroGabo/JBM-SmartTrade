@@ -27,7 +27,7 @@ export function SpecificOrderPage() {
 
     try {
       // 1. Send data to your PHP Backend
-      const response = await fetch('http://localhost/JBMTRADING/api/submit-special-order.php', {
+      const response = await fetch('/api/submit-special-order.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include', // Important: Sends the user's session cookie

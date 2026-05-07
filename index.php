@@ -1,17 +1,5 @@
 <?php
-/*
- * JBM Trading Company - Homepage
- * 
- * ✅ This is the PHP/MySQL version (CORRECT)
- * ❌ Not the React version (located in /src/)
- * 
- * If you're seeing "Failed to fetch module" errors:
- * 1. Stop any "npm run dev" process
- * 2. Start XAMPP Apache and MySQL
- * 3. Access via: http://localhost/jbmtrading/
- * 
- * See: ERROR_FIX.md or START_HERE.html for help
- */
+
 
 $page_title = 'Home';
 include 'includes/header.php';

@@ -24,7 +24,7 @@ export function AdminDashboardPage() {
   // 1. Fetch Real-Time Data from PHP API
   const fetchDashboardData = async () => {
     try {
-      const response = await fetch('http://localhost/JBMTRADING/api/get-admin-dashboard.php', {
+      const response = await fetch('/api/get-admin-dashboard.php', {
         credentials: 'include'
       });
       const result = await response.json();
@@ -42,7 +42,7 @@ export function AdminDashboardPage() {
   // 2. Handle Status Changes via Dropdown
   const handleStatusChange = async (id: number, newStatus: string, type: 'regular' | 'special') => {
     try {
-      const response = await fetch('http://localhost/JBMTRADING/api/update-order-status.php', {
+      const response = await fetch('/api/update-order-status.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

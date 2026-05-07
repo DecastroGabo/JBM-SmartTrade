@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await fetch('http://localhost/JBMTRADING/api/check-auth.php', {
+        const response = await fetch('/api/check-auth.php', {
           credentials: 'include', // Tells the browser to send the session cookie
         });
         const data = await response.json();
@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost/JBMTRADING/api/login.php', {
+      const response = await fetch('/api/login.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -94,7 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     setIsLoading(true);
     try {
-      await fetch('http://localhost/JBMTRADING/api/logout.php', {
+      await fetch('/api/logout.php', {
         method: 'POST',
         credentials: 'include',
       });
@@ -110,7 +110,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = async (userData: any) => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost/JBMTRADING/api/register.php', {
+      const response = await fetch('/api/register.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

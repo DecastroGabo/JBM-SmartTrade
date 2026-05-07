@@ -11,7 +11,7 @@ export function OrdersPage() {
 
   const fetchUserOrders = async () => {
     try {
-      const response = await fetch('http://localhost/JBMTRADING/api/get-user-orders.php', {
+      const response = await fetch('/api/get-user-orders.php', {
         credentials: 'include'
       });
       const data = await response.json();

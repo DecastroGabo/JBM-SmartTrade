@@ -19,7 +19,7 @@ export function HomePage() {
 
   // 3. Fetch data when the page loads
   useEffect(() => {
-    fetch('http://localhost/JBMTRADING/api/get-product.php')
+    fetch('/api/get-product.php')
       .then(res => res.json())
       .then(data => {
         // Transform the raw DB data (prices are strings) into the format React expects
