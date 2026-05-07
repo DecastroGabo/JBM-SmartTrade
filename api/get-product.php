@@ -19,7 +19,7 @@ try {
                 pp.PP_ProdPrice as price, 
                 c.Cat_Name as category, 
                 pi.pi_imagepath as image,
-                p.Prod_Status as status
+                p.Prod_available as status
             FROM products p
             LEFT JOIN productprice pp ON p.Prod_ID = pp.Prod_ID
             LEFT JOIN productcategory pc ON p.Prod_ID = pc.Prod_ID
