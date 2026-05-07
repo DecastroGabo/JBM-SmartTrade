@@ -25,7 +25,7 @@ export function ProductCard({ product, onProductUpdate }: ProductCardProps) {
   // --- API CONNECTION FOR ADMIN CONTROLS ---
   const handleAdminAction = async (action: string, extraData: any = {}) => {
     try {
-      const response = await fetch('api/admin-product-actions.php', {
+      const response = await fetch('/api/admin-product-actions.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

@@ -5,9 +5,8 @@ require_once 'db_conn.php';
 
 header('Content-Type: application/json');
 
-// 1. Check if user is Admin
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    echo json_encode(['success' => false, 'message' => 'Unauthorized admin access required']);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized access']);
     exit;
 }
 
