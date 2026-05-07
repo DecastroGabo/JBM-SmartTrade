@@ -1,7 +1,7 @@
 {
   "functions": {
     "api/**/*.php": {
-      "runtime": "vercel-php@0.7.0"
+      "runtime": "vercel-php@0.6.0"
     }
   },
   "routes": [
@@ -9,8 +9,5 @@
       "src": "/api/(.*).php",
       "dest": "/api/$1.php"
     }
-  ],
-  "projectSettings": {
-    "nodeVersion": "20.x"
-  }
+  ]
 }
