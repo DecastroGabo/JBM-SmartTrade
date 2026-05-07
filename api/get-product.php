@@ -1,6 +1,7 @@
 <?php
 // Prevent any HTML warnings from breaking the JSON response
-error_reporting(0); 
+ini_set('display_errors', 1);
+error_reporting(E_ALL); 
 require_once 'db_conn.php'; 
 
 header('Content-Type: application/json');
@@ -44,30 +45,29 @@ try {
     } else {
         // Case B: Fetch ALL Products for the Main Gallery and Admin Table
         $sql = "SELECT 
-                    p.Prod_ID as id, 
-                    p.Prod_Name as name, 
-                    p.Prod_Description as description,
-                    pp.PP_ProdPrice as price, 
-                    c.Cat_Name as category, 
-                    pi.pi_imagepath as image,
-                    p.Prod_Status as status
-                FROM products p
-                LEFT JOIN productprice pp ON p.Prod_ID = pp.Prod_ID
-                LEFT JOIN productcategory pc ON p.Prod_ID = pc.Prod_ID
-                LEFT JOIN category c ON pc.Cat_ID = c.Cat_ID
-                LEFT JOIN product_image pi ON p.Prod_ID = pi.Prod_ID
-                WHERE (pp.PP_ValidTo IS NULL OR pp.PP_ValidTo > NOW())";
+            p.Prod_ID as id, 
+            p.Prod_Name as name, 
+            p.Prod_Description as description,
+            pp.PP_ProdPrice as price, 
+            c.Cat_Name as category, 
+            pi.pi_imagepath as image
+            -- p.Prod_Status as status  <-- REMOVED THIS TO STOP THE ERROR
+        FROM products p
+        LEFT JOIN productprice pp ON p.Prod_ID = pp.Prod_ID
+        LEFT JOIN productcategory pc ON p.Prod_ID = pc.Prod_ID
+        LEFT JOIN category c ON pc.Cat_ID = c.Cat_ID
+        LEFT JOIN product_image pi ON p.Prod_ID = pi.Prod_ID
+        WHERE (pp.PP_ValidTo IS NULL OR pp.PP_ValidTo > NOW())";
 
         $result = $conn->query($sql);
         
         $products = [];
         if ($result) {
-            while ($row = $result->fetch_assoc()) {
-                $row['price'] = (float)$row['price'];
-                // Logic for React Component Stock check
-                $row['inStock'] = ($row['status'] === 'Available'); 
-                $products[] = $row;
-            }
+          while ($row = $result->fetch_assoc()) {
+    $row['price'] = (float)$row['price'];
+    $row['inStock'] = true; // Temporary: assume everything is in stock until you fix the column name
+    $products[] = $row;
+}
         }
         
         // Return plain array for the main products page
