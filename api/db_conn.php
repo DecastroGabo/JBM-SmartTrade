@@ -40,7 +40,7 @@ if ($db_url) {
 
     $conn = mysqli_init();
     // Aiven REQUIRES SSL to be active for cloud connections
-    $conn->options(MYSQLI_OPT_SSL_VERIFY_SERVER_CERT, true);
+    //$conn->options(MYSQLI_OPT_SSL_VERIFY_SERVER_CERT, true);
     $conn->real_connect($servername, $username, $password, $dbname, $port, NULL, MYSQLI_CLIENT_SSL);
 } else {
     // Local Fallback

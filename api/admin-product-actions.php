@@ -1,66 +1,58 @@
 <?php
-error_reporting(0);
-require_once 'db_conn.php';
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+require_once 'db_conn.php'; 
 
 header('Content-Type: application/json');
 
-// Security: Only admins can perform these actions
+// 1. Check if user is Admin
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    echo json_encode(['success' => false, 'message' => 'Unauthorized access']);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized admin access required']);
     exit;
 }
 
-$data = json_decode(file_get_contents("php://input"));
-$action = $data->action ?? '';
-$product_id = (int)($data->product_id ?? 0);
+$data = json_decode(file_get_contents('php://input'), true);
+$action = $data['action'] ?? '';
+$product_id = $data['product_id'] ?? null;
 
 if (!$product_id) {
-    echo json_encode(['success' => false, 'message' => 'Product ID is missing']);
+    echo json_encode(['success' => false, 'message' => 'Missing product ID']);
     exit;
 }
 
 try {
     switch ($action) {
-        case 'delete':
-            $stmt = $conn->prepare("DELETE FROM products WHERE id = ?");
-            $stmt->bind_param("i", $product_id);
+        case 'toggle_availability':
+            $newStatus = $data['status']; // 'available' or 'unavailable'
+            // IMPORTANT: Make sure 'Prod_Status' matches your actual DB column name
+            $stmt = $conn->prepare("UPDATE products SET Prod_Status = ? WHERE Prod_ID = ?");
+            $stmt->bind_param("si", $newStatus, $product_id);
             $stmt->execute();
-            echo json_encode(['success' => true, 'message' => 'Product deleted successfully']);
             break;
 
         case 'update_price':
-            $new_price = (float)$data->price;
-            
-            // 1. Expire the old price
-            $conn->query("UPDATE productprice SET PP_ValidTo = NOW() WHERE Prod_ID = $product_id AND PP_ValidTo IS NULL");
-            
-            // 2. Insert the new active price
-            $stmt = $conn->prepare("INSERT INTO productprice (Prod_ID, Prod_Price, PP_ValidFrom) VALUES (?, ?, NOW())");
-            $stmt->bind_param("id", $product_id, $new_price);
+            $newPrice = $data['price'];
+            // This updates the productprice table
+            $stmt = $conn->prepare("UPDATE productprice SET PP_ProdPrice = ? WHERE Prod_ID = ? AND (PP_ValidTo IS NULL OR PP_ValidTo > NOW())");
+            $stmt->bind_param("di", $newPrice, $product_id);
             $stmt->execute();
-            
-            echo json_encode(['success' => true, 'message' => 'Price updated successfully']);
             break;
 
-        case 'toggle_availability':
-            // FIX: We now convert the React string into a 1 or 0 for your 'available' column
-            $status_text = $data->status ?? 'available';
-            $is_available = ($status_text === 'available') ? 1 : 0;
-            
-            $stmt = $conn->prepare("UPDATE products SET available = ? WHERE id = ?");
-            $stmt->bind_param("ii", $is_available, $product_id);
-            
-            if ($stmt->execute()) {
-                echo json_encode(['success' => true, 'message' => 'Availability updated successfully']);
-            } else {
-                echo json_encode(['success' => false, 'message' => 'Update failed: ' . $conn->error]);
-            }
+        case 'delete':
+            // Be careful! This usually requires deleting from child tables first
+            $conn->query("DELETE FROM product_image WHERE Prod_ID = $product_id");
+            $conn->query("DELETE FROM productprice WHERE Prod_ID = $product_id");
+            $conn->query("DELETE FROM products WHERE Prod_ID = $product_id");
             break;
 
         default:
-            echo json_encode(['success' => false, 'message' => 'Unknown action requested']);
+            echo json_encode(['success' => false, 'message' => 'Invalid action']);
+            exit;
     }
+
+    echo json_encode(['success' => true]);
+
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => 'Database Error: ' . $e->getMessage()]);
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
 ?>
