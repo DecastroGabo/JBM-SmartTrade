@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚠️ Important: PHP vs React Version</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .container {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 800px;
+            padding: 3rem;
+        }
+        h1 {
+            color: #dc2626;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        .warning {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 1rem;
+            margin: 2rem 0;
+            border-radius: 0.5rem;
+        }
+        .success {
+            background: #dcfce7;
+            border-left: 4px solid #16a34a;
+            padding: 1rem;
+            margin: 2rem 0;
+            border-radius: 0.5rem;
+        }
+        .error {
+            background: #fee2e2;
+            border-left: 4px solid #dc2626;
+            padding: 1rem;
+            margin: 2rem 0;
+            border-radius: 0.5rem;
+        }
+        .btn {
+            display: inline-block;
+            background: #dc2626;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            margin: 0.5rem;
+            transition: all 0.2s;
+        }
+        .btn:hover {
+            background: #b91c1c;
+            transform: translateY(-2px);
+        }
+        .btn-outline {
+            background: white;
+            color: #dc2626;
+            border: 2px solid #dc2626;
+        }
+        .btn-outline:hover {
+            background: #dc2626;
+            color: white;
+        }
+        code {
+            background: #f3f4f6;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-family: 'Courier New', monospace;
+            color: #dc2626;
+        }
+        .steps {
+            background: #f9fafb;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+        }
+        .steps h3 {
+            color: #111827;
+            margin-bottom: 1rem;
+        }
+        .steps ol {
+            margin-left: 1.5rem;
+        }
+        .steps li {
+            margin: 0.5rem 0;
+            line-height: 1.6;
+        }
+        .highlight {
+            background: #fef3c7;
+            padding: 0.125rem 0.5rem;
+            border-radius: 0.25rem;
+            font-weight: 600;
+        }
+        .center {
+            text-align: center;
+            margin: 2rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚠️ Important: Read This First!</h1>
+        
+        <div class="error">
+            <h3 style="margin-bottom: 0.5rem;">❌ Are You Seeing This Error?</h3>
+            <p style="font-family: monospace; font-size: 0.9rem;">
+                "Failed to fetch dynamically imported module"
+            </p>
+        </div>
+
+        <div class="warning">
+            <h3 style="margin-bottom: 0.5rem;">🚨 You're Loading the WRONG Version!</h3>
+            <p>This project contains <strong>TWO versions</strong> of the same application:</p>
+            <ul style="margin: 1rem 0 0 1.5rem;">
+                <li><strong>PHP Version</strong> - Located in root directory (✅ USE THIS)</li>
+                <li><strong>React Version</strong> - Located in <code>/src/</code> directory (❌ DON'T USE)</li>
+            </ul>
+        </div>
+
+        <div class="success">
+            <h3 style="margin-bottom: 0.5rem;">✅ The Fix (Easy!)</h3>
+            <p>Follow these simple steps:</p>
+        </div>
+
+        <div class="steps">
+            <h3>Step 1: Stop React/Vite Server</h3>
+            <ol>
+                <li>If you have a terminal/command prompt window open with <code>npm run dev</code> or similar</li>
+                <li>Close it or press <span class="highlight">Ctrl + C</span> to stop it</li>
+            </ol>
+        </div>
+
+        <div class="steps">
+            <h3>Step 2: Start XAMPP</h3>
+            <ol>
+                <li>Open <strong>XAMPP Control Panel</strong></li>
+                <li>Click <span class="highlight">Start</span> next to <strong>Apache</strong></li>
+                <li>Click <span class="highlight">Start</span> next to <strong>MySQL</strong></li>
+                <li>Both should turn <span style="color: #16a34a; font-weight: 600;">GREEN</span></li>
+            </ol>
+        </div>
+
+        <div class="steps">
+            <h3>Step 3: Import Database</h3>
+            <ol>
+                <li>Go to: <code>http://localhost/phpmyadmin</code></li>
+                <li>Click <strong>New</strong> in left sidebar</li>
+                <li>Database name: <code>jbm_trading</code></li>
+                <li>Click the new database, then <strong>Import</strong> tab</li>
+                <li>Choose file: <code>jbm_trading.sql</code></li>
+                <li>Click <strong>Go</strong> button</li>
+            </ol>
+        </div>
+
+        <div class="steps">
+            <h3>Step 4: Access the Correct URL</h3>
+            <ol>
+                <li>Open your browser</li>
+                <li>Go to: <code>http://localhost/jbm-trading/</code></li>
+                <li><strong>NOT</strong> <code>http://localhost:5173/</code> ❌</li>
+                <li><strong>NOT</strong> <code>http://localhost:3000/</code> ❌</li>
+            </ol>
+        </div>
+
+        <div class="center">
+            <a href="http://localhost/jbm-trading/" class="btn">
+                ✅ Go to PHP Application
+            </a>
+            <a href="http://localhost/phpmyadmin" class="btn btn-outline">
+                🗄️ Open phpMyAdmin
+            </a>
+        </div>
+
+        <div class="warning">
+            <h3 style="margin-bottom: 0.5rem;">📋 Quick Checklist</h3>
+            <ul style="margin: 1rem 0 0 1.5rem;">
+                <li>✅ XAMPP installed and running</li>
+                <li>✅ Files in <code>C:\xampp\htdocs\jbm-trading\</code></li>
+                <li>✅ Database <code>jbm_trading</code> created and imported</li>
+                <li>✅ Apache is running (green in XAMPP)</li>
+                <li>✅ MySQL is running (green in XAMPP)</li>
+                <li>✅ Using URL: <code>http://localhost/jbm-trading/</code></li>
+            </ul>
+        </div>
+
+        <div class="success">
+            <h3 style="margin-bottom: 0.5rem;">🎉 That's It!</h3>
+            <p>The PHP application should now load correctly without any React errors.</p>
+        </div>
+
+        <div style="background: #f3f4f6; padding: 1.5rem; border-radius: 0.5rem; margin-top: 2rem;">
+            <h3 style="margin-bottom: 1rem;">📚 Need More Help?</h3>
+            <p>Check these documentation files:</p>
+            <ul style="margin: 1rem 0 0 1.5rem; line-height: 1.8;">
+                <li><strong>WHICH_FILES_TO_USE.md</strong> - Detailed explanation</li>
+                <li><strong>SETUP_GUIDE.md</strong> - 5-minute setup guide</li>
+                <li><strong>README_PHP.md</strong> - Complete documentation</li>
+                <li><strong>DEVELOPER_NOTES.md</strong> - Developer reference</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem; color: #6b7280; font-size: 0.875rem;">
+            <p>JBM Trading Company - PHP/MySQL Version</p>
+            <p>Version 1.0.0 | February 2026</p>
+        </div>
+    </div>
+</body>
+</html>

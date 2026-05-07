@@ -1,0 +1,86 @@
+=========================================================================
+  QUICK FIX - Your Logo Colors Are Inverted (Browser Cache Issue)
+=========================================================================
+
+PROBLEM: JBM logo shows RED background with WHITE text
+SHOULD BE: WHITE background with RED text
+
+-------------------------------------------------------------------------
+SOLUTION (Try in order):
+-------------------------------------------------------------------------
+
+1. HARD REFRESH (Press all together):
+   
+   Ctrl + Shift + R
+   
+   This should fix it immediately!
+
+-------------------------------------------------------------------------
+
+2. If that doesn't work, CLEAR BROWSER CACHE:
+
+   Chrome/Edge:
+   - Press Ctrl + Shift + Delete
+   - Select "Cached images and files"
+   - Time range: "All time"  
+   - Click "Clear data"
+   - Close browser
+   - Reopen browser
+   - Go to: http://localhost/jbmtrading/
+
+-------------------------------------------------------------------------
+
+3. If still not working, try INCOGNITO MODE:
+
+   - Press Ctrl + Shift + N (Chrome/Edge)
+   - Visit: http://localhost/jbmtrading/
+   - If it looks correct here, your regular browser cache needs clearing
+
+-------------------------------------------------------------------------
+
+WHY THIS HAPPENS:
+
+Your browser saved the old CSS file and keeps showing it even though
+the actual CSS file is correct. This is called "caching."
+
+I've updated your files to force fresh CSS/JS loading every time, so
+after you clear your cache once, this won't happen again!
+
+-------------------------------------------------------------------------
+
+WHAT IT SHOULD LOOK LIKE AFTER FIX:
+
+┌───────┐
+│  JBM  │  Trading Company
+└───────┘
+   ↑
+WHITE box (not red!)
+RED text "JBM" (not white!)
+Gray border
+
+-------------------------------------------------------------------------
+
+VERIFICATION:
+
+After clearing cache, you should see:
+✓ White box around JBM logo
+✓ Red text saying "JBM"
+✓ Red "Sign Up" button
+✓ Red gradient hero section
+✓ White category cards
+
+-------------------------------------------------------------------------
+
+FILES UPDATED:
+
+I've added cache-busting to:
+- /includes/header.php (CSS now loads fresh)
+- /includes/footer.php (JavaScript now loads fresh)
+
+This means after you clear cache ONCE, you won't have this problem again!
+
+=========================================================================
+
+TL;DR: Press Ctrl+Shift+R and it should be fixed!
+
+=========================================================================
