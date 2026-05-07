@@ -9,5 +9,8 @@
       "src": "/api/(.*).php",
       "dest": "/api/$1.php"
     }
-  ]
+  ],
+  "projectSettings": {
+    "nodeVersion": "20.x"
+  }
 }
