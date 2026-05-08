@@ -2,30 +2,37 @@
 // Prevent PHP from hanging on connection failures
 mysqli_report(MYSQLI_REPORT_OFF);
 
+// 1. CORS HEADERS
 header("Access-Control-Allow-Origin: https://jbm-smart-trade.vercel.app");
 header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
 
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit;
 }
 
-// 3. CONFIGURE COOKIES (Single Point of Session Management)
-// In db_conn.php
+// 2. CONFIGURE COOKIES (Crucial fix for cross-subdomain sessions on Vercel)
 if (session_status() === PHP_SESSION_NONE) {
+    // Force PHP to allow cross-site/third-party cookie transmission
+    ini_set('session.cookie_samesite', 'None');
+    ini_set('session.cookie_secure', '1');
+    ini_set('session.cookie_httponly', '1');
+    
     session_set_cookie_params([
         'lifetime' => 86400,
         'path' => '/',
-        'domain' => '', // Empty lets Vercel handle it
-        'secure' => true, // Must be true for HTTPS
+        // We set 'domain' to null (or omit it) so SameSite=None can be handled properly by modern browsers across different Vercel domains
+        'domain' => null, 
+        'secure' => true, 
         'httponly' => true,
-        'samesite' => 'None' // MANDATORY for cross-site requests
+        'samesite' => 'None' 
     ]);
+    
     session_start();
 }
 
-// 4. Database Connection (Cloud Config)
+// 3. Database Connection (Cloud Config)
 $db_url = getenv("DATABASE_URL");
 
 if ($db_url) {

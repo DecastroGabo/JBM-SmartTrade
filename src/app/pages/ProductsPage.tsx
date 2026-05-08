@@ -50,7 +50,7 @@ export function ProductsPage() {
   const [selectedCategory, setSelectedCategory] = useState<ProductCategory | 'all'>('all');
 
  const loadProducts = () => {
-  fetch('https://jbm-trading-api.vercel.app/api/get-product.php')
+  fetch('/api/get-product.php')
     .then(res => res.json())
       .then((data: DBProduct[]) => {
         const formattedProducts = data.map(item => {
