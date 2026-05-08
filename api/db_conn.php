@@ -1,20 +1,13 @@
 <?php
-// 1. Updated CORS Headers for Production
-// We change localhost:5173 to * so your Vercel frontend can talk to your Vercel backend
-// 1. Explicitly allow ONLY your Vercel URL (NO asterisk *)
+header_remove();
+
+// 2. Tell the browser that your Vercel site is allowed to access this API
 header("Access-Control-Allow-Origin: https://jbm-smart-trade.vercel.app");
-
-// 2. Explicitly allow cookies/sessions
 header("Access-Control-Allow-Credentials: true");
-
-// 3. Define allowed methods and headers
-header("Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE, PUT");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS, DELETE, PUT");
 header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
 
-// 4. Set Content Type
-header('Content-Type: application/json');
-
-// 5. Handle "OPTIONS" pre-flight request (Crucial for Vercel)
+// 3. Handle "Pre-flight" requests (Vercel sends these to check permission)
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     http_response_code(200);
     exit();
