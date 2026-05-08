@@ -1,4 +1,5 @@
 <?php
+session_start();
 // Prevent any HTML warnings from breaking the JSON response
 error_reporting(0); 
 require_once 'db_conn.php'; 
