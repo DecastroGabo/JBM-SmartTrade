@@ -1,18 +1,19 @@
 <?php
-// 1. Include Master Connection (Handles Headers, Session, and DB)
+// 1. Include Master Connection
+// Ensure db_conn.php contains: session_start();
 require_once 'db_conn.php'; 
 
 // 2. Check Admin Permissions
+// If this fails, it means your session is not persisting across domains
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    http_response_code(403);
     echo json_encode(['success' => false, 'message' => 'Unauthorized access']);
     exit;
 }
 
-// 3. Read JSON Input
-$input = json_decode(file_get_contents("php://input"), true);
-$product_id = $input['product_id'] ?? null;
-// We check if 'available' is set, allowing 0 (false) as a valid value
-$available = isset($input['available']) ? (int)$input['available'] : null;
+// 3. Read Input (Changed from JSON to $_POST to match your script.js)
+$product_id = $_POST['product_id'] ?? null;
+$available = isset($_POST['available']) ? (int)$_POST['available'] : null;
 
 if (!$product_id || $available === null) {
     echo json_encode(['success' => false, 'message' => 'Missing product ID or status']);
@@ -20,8 +21,8 @@ if (!$product_id || $available === null) {
 }
 
 // 4. Update the Product
-// We use a Prepared Statement for security
-$stmt = $conn->prepare("UPDATE products SET available = ? WHERE id = ?");
+// FIXED: Column names changed to Prod_available and Prod_ID to match DBeaver
+$stmt = $conn->prepare("UPDATE products SET Prod_available = ? WHERE Prod_ID = ?");
 $stmt->bind_param("ii", $available, $product_id);
 
 if ($stmt->execute()) {
