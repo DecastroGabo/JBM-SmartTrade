@@ -443,41 +443,46 @@ function toggleAvailability(productId, currentStatus) {
         return;
     }
     
-    fetch('/api/toggle-availability.php', {
+    // CHANGED: Point this fetch directly to your actual API server
+    fetch('https://jbm-trading-api.vercel.app/api/toggle-availability.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
-        credentials: 'include', // MANDATORY for cross-origin sessions
+        credentials: 'include', // Mandated for keeping you logged in
         body: `product_id=${productId}&available=${newStatus}`
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Server returned status: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             showAlert(`Product marked as ${action}`, 'success');
             setTimeout(() => location.reload(), 1500);
         } else {
-            // This alert shows the message from your PHP
             showAlert(data.message, 'danger');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        showAlert('Failed to update product', 'danger');
+        showAlert('Failed to update product: ' + error.message, 'danger');
     });
 }
-
 // Delete product
 function deleteProduct(productId) {
     if (!confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
         return;
     }
     
-    fetch('/api/delete-product.php', {
+    fetch('https://jbm-trading-api.vercel.app/api/delete-product.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
+        credentials: 'include',
         body: `product_id=${productId}`
     })
     .then(response => response.json())
