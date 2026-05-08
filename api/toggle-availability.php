@@ -1,6 +1,14 @@
 <?php
-
+// db_conn.php handles CORS, session initialization, and connection
 require_once 'db_conn.php'; 
+
+// Temporary Auth bypass for testing
+/*
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    echo json_encode(['success' => false, 'message' => 'Unauthorized access']);
+    exit;
+}
+*/
 
 // Read standard Form/POST input
 $product_id = $_POST['product_id'] ?? null;
@@ -11,7 +19,7 @@ if (!$product_id || $available === null) {
     exit;
 }
 
-// Update the Product using correct DB columns
+// Update the Product using correct DB columns (Prod_available and Prod_ID)
 $query = "UPDATE products SET Prod_available = ? WHERE Prod_ID = ?";
 $stmt = $conn->prepare($query);
 

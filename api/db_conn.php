@@ -1,4 +1,7 @@
 <?php
+// Prevent PHP from hanging on connection failures
+mysqli_report(MYSQLI_REPORT_OFF);
+
 header("Access-Control-Allow-Origin: https://jbm-smart-trade.vercel.app");
 header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
@@ -8,15 +11,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit;
 }
 
-// 3. CONFIGURE COOKIES (Updated for Vercel/Cloud)
+// 3. CONFIGURE COOKIES (Single Point of Session Management)
 if (session_status() === PHP_SESSION_NONE) {
     session_set_cookie_params([
         'lifetime' => 86400,
         'path' => '/',
-        'domain' => '', // Leaving this empty lets Vercel handle the domain automatically
-        'secure' => true, // SET TO TRUE: Vercel uses HTTPS
+        'domain' => '', 
+        'secure' => true, 
         'httponly' => true,
-        'samesite' => 'None' // Necessary for cross-site requests in the cloud
+        'samesite' => 'None' 
     ]);
     session_start();
 }
@@ -34,9 +37,15 @@ if ($db_url) {
     $port       = $url["port"];
 
     $conn = mysqli_init();
-    // Aiven REQUIRES SSL to be active for cloud connections
-    //$conn->options(MYSQLI_OPT_SSL_VERIFY_SERVER_CERT, true);
-    $conn->real_connect($servername, $username, $password, $dbname, $port, NULL, MYSQLI_CLIENT_SSL);
+    
+    // Set connection timeout to 5 seconds to prevent 502 Bad Gateway timeouts
+    $conn->options(MYSQLI_OPT_CONNECT_TIMEOUT, 5);
+    
+    $connected = @$conn->real_connect($servername, $username, $password, $dbname, $port, NULL, MYSQLI_CLIENT_SSL);
+    
+    if (!$connected) {
+        die(json_encode(["success" => false, "message" => "Aiven Connection failed: " . mysqli_connect_error()]));
+    }
 } else {
     // Local Fallback
     $conn = new mysqli("localhost", "root", "", "jbm_trading");
