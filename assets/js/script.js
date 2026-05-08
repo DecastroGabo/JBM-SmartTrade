@@ -434,39 +434,45 @@ if (editProductForm) {
     });
 }
 
-// Toggle product availability
 function toggleAvailability(productId, currentStatus) {
-    const newStatus = currentStatus ? 'available' : 'unavailable'; // admin-product-actions expects 'available'/'unavailable'
+    const newStatus = currentStatus ? 'unavailable' : 'available'; // Set status string
     
     if (!confirm(`Are you sure you want to mark this product as ${newStatus}?`)) {
         return;
     }
     
-    // Make sure we hit the correct endpoint on your API domain
+    // Direct call to your live API domain
     fetch('https://jbm-trading-api.vercel.app/api/admin-product-actions.php', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json', // admin-product-actions.php parses JSON!
+            'Content-Type': 'application/json', // Telling PHP we are sending JSON
         },
-        credentials: 'include', // CRITICAL: This passes your admin session cookie
+        credentials: 'include', // Crucial to keep session cookie
         body: JSON.stringify({
             action: 'toggle_availability',
             product_id: productId,
             status: newStatus
         })
     })
-    .then(response => response.json())
+    .then(async response => {
+        const text = await response.text();
+        try {
+            return JSON.parse(text);
+        } catch (err) {
+            throw new Error(`Server returned raw content instead of JSON: ${text}`);
+        }
+    })
     .then(data => {
         if (data.success) {
             showAlert(`Product marked as ${newStatus}`, 'success');
             setTimeout(() => location.reload(), 1500);
         } else {
-            showAlert(data.message, 'danger'); // Displays the "Unauthorized access" if session fails
+            showAlert(data.message, 'danger');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        showAlert('Failed to update product status', 'danger');
+        showAlert('System Error: ' + error.message, 'danger');
     });
 }
 // Delete product

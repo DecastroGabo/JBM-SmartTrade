@@ -1,58 +1,60 @@
 <?php
-// 1. CLEAR ANY PREVIOUS OUTPUT BUFFERING
-ob_clean();
+// 1. CLEAR & SUPPRESS RAW HTML WARNINGS
+ob_start();
+ini_set('display_errors', 0);
+error_reporting(E_ALL);
 
-// 2. SET THE APPLICABLE CORS & CORB SECURITY HEADERS
+// 2. STRENGTHEN CORS & CORB SECURITY HEADERS
 header("Access-Control-Allow-Origin: https://jbm-smart-trade.vercel.app");
 header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
-header("Content-Type: application/json; charset=UTF-8"); // Explicitly tell the browser it is JSON
-header("X-Content-Type-Options: nosniff"); // Stops CORB from misidentifying your response
+header("Content-Type: application/json; charset=UTF-8");
+header("X-Content-Type-Options: nosniff"); // Crucial to stop Chrome CORB blocking
 
 // Handle preflight OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
+    ob_end_clean();
     exit;
 }
 
-// 3. START SESSIONS & IMPORTS
-session_start();
-error_reporting(E_ALL);
-ini_set('display_errors', 0); // Turn off raw PHP text errors so they don't break JSON formatting
-
+// 3. INCLUDE DATABASE (Initializes DB and Sessions)
 require_once 'db_conn.php'; 
 
-// ... (Rest of your working admin-product-actions.php code below)
-
-header('Content-Type: application/json'); //
-
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') { //
-    echo json_encode(['success' => false, 'message' => 'Unauthorized access']); //
-    exit; //
+// Check Admin Authorization
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    ob_end_clean();
+    echo json_encode(['success' => false, 'message' => 'Unauthorized access']);
+    exit;
 }
 
-$data = json_decode(file_get_contents('php://input'), true); //
-$action = $data['action'] ?? ''; //
-$product_id = $data['product_id'] ?? null; //
+// 4. PARSE THE JSON INPUT SAFELY
+$raw_input = file_get_contents('php://input');
+$data = json_decode($raw_input, true);
 
-if (!$product_id) { //
-    echo json_encode(['success' => false, 'message' => 'Missing product ID']); //
-    exit; //
+if (json_last_error() !== JSON_ERROR_NONE) {
+    ob_end_clean();
+    echo json_encode(['success' => false, 'message' => 'Invalid JSON payload received by server']);
+    exit;
+}
+
+$action = $data['action'] ?? '';
+$product_id = $data['product_id'] ?? null;
+
+if (!$product_id) {
+    ob_end_clean();
+    echo json_encode(['success' => false, 'message' => 'Missing product ID']);
+    exit;
 }
 
 try {
     switch ($action) {
         case 'toggle_availability':
-            $statusInput = $data['status'] ?? ''; // 'available', 'unavailable', 1, or 0
-            
-            // Map the frontend status values into the 1 / 0 integer your database expects
-            $newStatus = 0;
-            if ($statusInput === 'available' || $statusInput === 1 || $statusInput === '1') {
-                $newStatus = 1;
-            }
+            $statusInput = $data['status'] ?? '';
+            // Convert status string ('available' / 'unavailable') to database integer (1 / 0)
+            $newStatus = ($statusInput === 'available' || $statusInput === 1 || $statusInput === '1') ? 1 : 0;
 
-            // Corrected: Set 'Prod_available' (integer) instead of 'Prod_Status' (string)
+            // Database column check: Uses 'Prod_available' and 'Prod_ID'
             $stmt = $conn->prepare("UPDATE products SET Prod_available = ? WHERE Prod_ID = ?");
             if (!$stmt) {
                 throw new Exception("Prepare failed: " . $conn->error);
@@ -65,31 +67,49 @@ try {
             $stmt->close();
             break;
 
-        case 'update_price': //
-            $newPrice = $data['price']; //
-            $stmt = $conn->prepare("UPDATE productprice SET PP_ProdPrice = ? WHERE Prod_ID = ? AND (PP_ValidTo IS NULL OR PP_ValidTo > NOW())"); //
+        case 'update_price':
+            $newPrice = $data['price'] ?? null;
+            if ($newPrice === null) {
+                throw new Exception("Missing price value");
+            }
+            $stmt = $conn->prepare("UPDATE productprice SET PP_ProdPrice = ? WHERE Prod_ID = ? AND (PP_ValidTo IS NULL OR PP_ValidTo > NOW())");
             if (!$stmt) {
                 throw new Exception("Prepare failed: " . $conn->error);
             }
-            $stmt->bind_param("di", $newPrice, $product_id); //
-            $stmt->execute(); //
+            $stmt->bind_param("di", $newPrice, $product_id);
+            if (!$stmt->execute()) {
+                throw new Exception("Execute failed: " . $stmt->error);
+            }
             $stmt->close();
             break;
 
-        case 'delete': //
-            $conn->query("DELETE FROM product_image WHERE Prod_ID = $product_id"); //
-            $conn->query("DELETE FROM productprice WHERE Prod_ID = $product_id"); //
-            $conn->query("DELETE FROM products WHERE Prod_ID = $product_id"); //
+        case 'delete':
+            // Delete safely from child tables first to avoid foreign key blocks
+            if (!$conn->query("DELETE FROM product_image WHERE Prod_ID = " . (int)$product_id)) {
+                throw new Exception("Delete image failed: " . $conn->error);
+            }
+            if (!$conn->query("DELETE FROM productprice WHERE Prod_ID = " . (int)$product_id)) {
+                throw new Exception("Delete price failed: " . $conn->error);
+            }
+            if (!$conn->query("DELETE FROM products WHERE Prod_ID = " . (int)$product_id)) {
+                throw new Exception("Delete product failed: " . $conn->error);
+            }
             break;
 
-        default: //
-            echo json_encode(['success' => false, 'message' => 'Invalid action']); //
-            exit; //
+        default:
+            throw new Exception("Invalid action: " . $action);
     }
 
-    echo json_encode(['success' => true]); //
+    // Success: Clear buffer and output clean JSON
+    ob_end_clean();
+    echo json_encode(['success' => true]);
 
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => $e->getMessage()]); //
+    // If anything fails in the SQL, return it safely as JSON so JavaScript doesn't crash!
+    ob_end_clean();
+    echo json_encode([
+        'success' => false, 
+        'message' => 'Backend Error: ' . $e->getMessage()
+    ]);
 }
 ?>
