@@ -2,7 +2,7 @@
 // 1. Include Master Connection
 require_once 'db_conn.php'; 
 
-// 2. BYPASS ADMIN CHECK FOR TESTING (Commented out)
+// (Bypass auth check for testing)
 /*
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     echo json_encode(['success' => false, 'message' => 'Unauthorized access']);
@@ -10,18 +10,31 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 }
 */
 
-// 3. Read Input (Changed from JSON to $_POST to match your standard JavaScript form submissions)
-$product_id = $_POST['product_id'] ?? null;
-$available = isset($_POST['available']) ? (int)$_POST['available'] : null;
+// 2. Read JSON Input
+$input = json_decode(file_get_contents("php://input"), true);
+$product_id = $input['product_id'] ?? null;
+$available = isset($input['available']) ? (int)$input['available'] : null;
 
 if (!$product_id || $available === null) {
     echo json_encode(['success' => false, 'message' => 'Missing product ID or status']);
     exit;
 }
 
-// 4. Update the Product
-// FIXED: Column names corrected to 'Prod_available' and 'Prod_ID' to match your SQL schema!
-$stmt = $conn->prepare("UPDATE products SET Prod_available = ? WHERE Prod_ID = ?");
+// 3. Update the Product
+// FIXED QUERY: Uses the exact column names 'Prod_available' and 'Prod_ID' from your jbm_trading.sql schema
+$query = "UPDATE products SET Prod_available = ? WHERE Prod_ID = ?";
+$stmt = $conn->prepare($query);
+
+// If prepare fails, output the database error so we know exactly why
+if (!$stmt) {
+    echo json_encode([
+        'success' => false, 
+        'message' => 'Prepare failed: ' . $conn->error,
+        'query_attempted' => $query
+    ]);
+    exit;
+}
+
 $stmt->bind_param("ii", $available, $product_id);
 
 if ($stmt->execute()) {
