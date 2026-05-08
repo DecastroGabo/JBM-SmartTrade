@@ -443,25 +443,30 @@ function toggleAvailability(productId, currentStatus) {
         return;
     }
     
+    // Updated fetch call to handle session security
     fetch('/api/toggle-availability.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
+        credentials: 'include', // CRITICAL: This sends your login session to the server
         body: `product_id=${productId}&available=${newStatus}`
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             showAlert(`Product marked as ${action}`, 'success');
             setTimeout(() => location.reload(), 1500);
         } else {
-            showAlert(data.message || 'Failed to update product', 'danger');
+            showAlert(data.message || 'Unauthorized access', 'danger');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        showAlert('Failed to update product', 'danger');
+        showAlert('Failed to update product. Check console for CORS errors.', 'danger');
     });
 }
 
