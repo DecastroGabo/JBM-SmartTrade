@@ -12,14 +12,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 }
 
 // 3. CONFIGURE COOKIES (Single Point of Session Management)
+// In db_conn.php
 if (session_status() === PHP_SESSION_NONE) {
     session_set_cookie_params([
         'lifetime' => 86400,
         'path' => '/',
-        'domain' => '', 
-        'secure' => true, 
+        'domain' => '', // Empty lets Vercel handle it
+        'secure' => true, // Must be true for HTTPS
         'httponly' => true,
-        'samesite' => 'None' 
+        'samesite' => 'None' // MANDATORY for cross-site requests
     ]);
     session_start();
 }

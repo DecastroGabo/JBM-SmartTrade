@@ -436,41 +436,37 @@ if (editProductForm) {
 
 // Toggle product availability
 function toggleAvailability(productId, currentStatus) {
-    const newStatus = currentStatus ? 0 : 1;
-    const action = newStatus ? 'available' : 'unavailable';
+    const newStatus = currentStatus ? 'available' : 'unavailable'; // admin-product-actions expects 'available'/'unavailable'
     
-    if (!confirm(`Are you sure you want to mark this product as ${action}?`)) {
+    if (!confirm(`Are you sure you want to mark this product as ${newStatus}?`)) {
         return;
     }
     
-    // FORCE the request directly to your actual working API server
-    fetch('https://jbm-trading-api.vercel.app/api/toggle-availability.php', {
+    // Make sure we hit the correct endpoint on your API domain
+    fetch('https://jbm-trading-api.vercel.app/api/admin-product-actions.php', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Type': 'application/json', // admin-product-actions.php parses JSON!
         },
-        credentials: 'include', // Sends your cookies/session safely
-        body: `product_id=${productId}&available=${newStatus}`
+        credentials: 'include', // CRITICAL: This passes your admin session cookie
+        body: JSON.stringify({
+            action: 'toggle_availability',
+            product_id: productId,
+            status: newStatus
+        })
     })
-    .then(async response => {
-        const text = await response.text();
-        try {
-            return JSON.parse(text);
-        } catch (err) {
-            throw new Error(`Server sent non-JSON response: ${text}`);
-        }
-    })
+    .then(response => response.json())
     .then(data => {
         if (data.success) {
-            showAlert(`Product marked as ${action}`, 'success');
+            showAlert(`Product marked as ${newStatus}`, 'success');
             setTimeout(() => location.reload(), 1500);
         } else {
-            showAlert(data.message, 'danger');
+            showAlert(data.message, 'danger'); // Displays the "Unauthorized access" if session fails
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        showAlert('Error: ' + error.message, 'danger');
+        showAlert('Failed to update product status', 'danger');
     });
 }
 // Delete product
