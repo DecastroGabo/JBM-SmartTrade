@@ -1,16 +1,11 @@
 <?php
-header_remove();
-
-// 2. Tell the browser that your Vercel site is allowed to access this API
 header("Access-Control-Allow-Origin: https://jbm-smart-trade.vercel.app");
 header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS, DELETE, PUT");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
 
-// 3. Handle "Pre-flight" requests (Vercel sends these to check permission)
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-    http_response_code(200);
-    exit();
+    exit;
 }
 
 // 3. CONFIGURE COOKIES (Updated for Vercel/Cloud)
