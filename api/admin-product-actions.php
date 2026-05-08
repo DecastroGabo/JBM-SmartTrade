@@ -1,6 +1,5 @@
 <?php
-// 1. CLEAR & SUPPRESS RAW HTML WARNINGS 
-// This prevents any PHP errors from breaking your JSON response
+// 1. CLEAR & SUPPRESS RAW HTML WARNINGS
 ob_start();
 ini_set('display_errors', 0);
 error_reporting(E_ALL);
@@ -20,17 +19,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // 3. INCLUDE DATABASE & SESSION
-// We load this first so $_SESSION is available for the check below
 require_once 'db_conn.php'; 
 
 // 4. ADMIN AUTHORIZATION CHECK
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    ob_end_clean(); // Wipe any incidental output
+    ob_end_clean();
     echo json_encode(['success' => false, 'message' => 'Unauthorized access']);
     exit;
 }
 
-// 5. PARSE THE JSON INPUT
+// 5. PARSE INPUT
 $raw_input = file_get_contents('php://input');
 $data = json_decode($raw_input, true);
 
@@ -53,10 +51,11 @@ try {
     switch ($action) {
         case 'toggle_availability':
             $statusInput = $data['status'] ?? '';
-            // Map 'available'/'unavailable' strings to 1/0 for the DB
+            // Map your toggle statuses to the 'ps_status' integer (1 for active/available, 0 for inactive/unavailable)
             $newStatus = ($statusInput === 'available' || $statusInput === 1 || $statusInput === '1') ? 1 : 0;
 
-            $stmt = $conn->prepare("UPDATE products SET Prod_available = ? WHERE Prod_ID = ?");
+            // Target the correct productstock table and 'ps_status' column
+            $stmt = $conn->prepare("UPDATE productstock SET ps_status = ? WHERE Prod_ID = ?");
             if (!$stmt) throw new Exception("Prepare failed: " . $conn->error);
             
             $stmt->bind_param("ii", $newStatus, $product_id);
@@ -77,26 +76,32 @@ try {
             break;
 
         case 'delete':
-            // Delete from child tables first to avoid foreign key errors
-            $conn->query("DELETE FROM product_image WHERE Prod_ID = " . (int)$product_id);
-            $conn->query("DELETE FROM productprice WHERE Prod_ID = " . (int)$product_id);
-            $conn->query("DELETE FROM products WHERE Prod_ID = " . (int)$product_id);
+            $conn->begin_transaction();
+            try {
+                // Safely delete from all related child tables in order to preserve referential integrity
+                $conn->query("DELETE FROM product_image WHERE Prod_ID = " . (int)$product_id);
+                $conn->query("DELETE FROM productprice WHERE Prod_ID = " . (int)$product_id);
+                $conn->query("DELETE FROM productstock WHERE Prod_ID = " . (int)$product_id);
+                $conn->query("DELETE FROM products WHERE Prod_ID = " . (int)$product_id);
+                $conn->commit();
+            } catch (Exception $e) {
+                $conn->rollback();
+                throw $e;
+            }
             break;
 
         default:
             throw new Exception("Invalid action: " . $action);
     }
 
-    // SUCCESS: Clear the buffer and send clean JSON
     ob_end_clean();
     echo json_encode(['success' => true]);
 
 } catch (Exception $e) {
-    // ERROR: Capture any failure and send it as a clean JSON message
     ob_end_clean();
     echo json_encode([
         'success' => false, 
         'message' => 'Backend Error: ' . $e->getMessage()
     ]);
 }
-?>s
+?>

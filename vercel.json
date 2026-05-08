@@ -7,15 +7,11 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "/api/:path*"
+      "destination": "https://jbm-trading-api.vercel.app/api/:path*"
     },
     {
       "source": "/:path*",
       "destination": "/index.html"
-    },
-    {
-      "source": "/api/toggle-availability.php",
-      "destination": "https://jbm-trading-api.vercel.app/api/toggle-availability.php"
     }
   ]
 }
