@@ -443,13 +443,13 @@ function toggleAvailability(productId, currentStatus) {
         return;
     }
     
-    // CHANGED: Point this fetch directly to your actual API server
-    fetch('https://jbm-trading-api.vercel.app/api/toggle-availability.php', {
+    // CHANGED: Use the relative path again! The vercel.json rewrite handles the redirect.
+    fetch('/api/toggle-availability.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
-        credentials: 'include', // Mandated for keeping you logged in
+        credentials: 'include', 
         body: `product_id=${productId}&available=${newStatus}`
     })
     .then(response => {
@@ -477,7 +477,7 @@ function deleteProduct(productId) {
         return;
     }
     
-    fetch('https://jbm-trading-api.vercel.app/api/delete-product.php', {
+    fetch('/api/delete-product.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',

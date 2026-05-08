@@ -12,6 +12,10 @@
     {
       "source": "/:path*",
       "destination": "/index.html"
+    },
+    {
+      "source": "/api/toggle-availability.php",
+      "destination": "https://jbm-trading-api.vercel.app/api/toggle-availability.php"
     }
   ]
 }
