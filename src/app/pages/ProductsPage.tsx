@@ -49,9 +49,9 @@ export function ProductsPage() {
   const categoryFromUrl = searchParams.get('category') as ProductCategory | null;
   const [selectedCategory, setSelectedCategory] = useState<ProductCategory | 'all'>('all');
 
-  const loadProducts = () => {
-    fetch('/api/get-product.php')
-      .then(res => res.json())
+ const loadProducts = () => {
+  fetch('https://jbm-trading-api.vercel.app/api/get-product.php')
+    .then(res => res.json())
       .then((data: DBProduct[]) => {
         const formattedProducts = data.map(item => {
             const isAvailable = item.available == 1;

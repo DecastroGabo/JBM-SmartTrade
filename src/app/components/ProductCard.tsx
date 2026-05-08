@@ -23,9 +23,10 @@ export function ProductCard({ product, onProductUpdate }: ProductCardProps) {
   const subtotal = product.price * quantity;
 
   // --- API CONNECTION FOR ADMIN CONTROLS ---
-  const handleAdminAction = async (action: string, extraData: any = {}) => {
-    try {
-      const response = await fetch('/api/admin-product-actions.php', {
+ // --- API CONNECTION FOR ADMIN CONTROLS ---
+const handleAdminAction = async (action: string, extraData: any = {}) => {
+  try {
+    const response = await fetch('https://jbm-trading-api.vercel.app/api/admin-product-actions.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
