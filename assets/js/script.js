@@ -443,20 +443,22 @@ function toggleAvailability(productId, currentStatus) {
         return;
     }
     
-    // CHANGED: Use the relative path again! The vercel.json rewrite handles the redirect.
-    fetch('/api/toggle-availability.php', {
+    // FORCE the request directly to your actual working API server
+    fetch('https://jbm-trading-api.vercel.app/api/toggle-availability.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
-        credentials: 'include', 
+        credentials: 'include', // Sends your cookies/session safely
         body: `product_id=${productId}&available=${newStatus}`
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Server returned status: ${response.status}`);
+    .then(async response => {
+        const text = await response.text();
+        try {
+            return JSON.parse(text);
+        } catch (err) {
+            throw new Error(`Server sent non-JSON response: ${text}`);
         }
-        return response.json();
     })
     .then(data => {
         if (data.success) {
@@ -468,7 +470,7 @@ function toggleAvailability(productId, currentStatus) {
     })
     .catch(error => {
         console.error('Error:', error);
-        showAlert('Failed to update product: ' + error.message, 'danger');
+        showAlert('Error: ' + error.message, 'danger');
     });
 }
 // Delete product
