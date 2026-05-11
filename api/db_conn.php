@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 
 // 2. CONFIGURE COOKIES (Crucial fix for cross-subdomain sessions on Vercel)
 if (session_status() === PHP_SESSION_NONE) {
-    // Force PHP to allow cross-site/third-party cookie transmission
+  
     ini_set('session.cookie_samesite', 'None');
     ini_set('session.cookie_secure', '1');
     ini_set('session.cookie_httponly', '1');
